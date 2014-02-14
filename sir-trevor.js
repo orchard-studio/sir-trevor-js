@@ -4,7 +4,7 @@
  * Released under the MIT license
  * www.opensource.org/licenses/MIT
  *
- * 2013-12-21
+ * 2014-02-14
  */
 
 (function ($, _){
@@ -615,7 +615,7 @@
     }
   
     html = html.replace(/\[([^\]]+)\]\(([^\)]+)\)/gm,function(match, p1, p2){
-      return "<a href='"+p2+"'>"+p1.replace(/\n/g, '')+"</a>";
+      return "<a href='"+p2+"'>"+p1.replace(/\r?\n/g, '')+"</a>";
     });
   
     // This may seem crazy, but because JS doesn't have a look behind,
@@ -625,10 +625,10 @@
     html = _.reverse(
              _.reverse(html)
              .replace(/_(?!\\)((_\\|[^_])*)_(?=$|[^\\])/gm, function(match, p1) {
-                return ">i/<"+ p1.replace(/\n/g, '').replace(/[\s]+$/,'') +">i<";
+                return ">i/<"+ p1.replace(/\r?\n/g, '').replace(/[\s]+$/,'') +">i<";
              })
              .replace(/\*\*(?!\\)((\*\*\\|[^\*\*])*)\*\*(?=$|[^\\])/gm, function(match, p1){
-                return ">b/<"+ p1.replace(/\n/g, '').replace(/[\s]+$/,'') +">b<";
+                return ">b/<"+ p1.replace(/\r?\n/g, '').replace(/[\s]+$/,'') +">b<";
              })
             );
   
@@ -657,12 +657,12 @@
     }
   
     if (shouldWrap) {
-      html = html.replace(/\n\n/gm, "</div><div><br></div><div>");
-      html = html.replace(/\n/gm, "</div><div>");
+      html = html.replace(/\r?\n\r?\n/gm, "</div><div><br></div><div>");
+      html = html.replace(/\r?\n/gm, "</div><div>");
     }
   
     html = html.replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;")
-               .replace(/\n/g, "<br>")
+               .replace(/\r?\n/g, "<br>")
                .replace(/\*\*/, "")
                .replace(/__/, "");  // Cleanup any markdown characters left
   
@@ -1285,10 +1285,12 @@
   };
   SirTrevor.SimpleBlock = (function(){
   
-    var SimpleBlock = function(data, instance_id) {
+    var SimpleBlock = function(data, instance_id, masterObj, sirTrevor) {
       this.createStore(data);
       this.blockID = _.uniqueId('st-block-');
       this.instanceID = instance_id;
+      this.master = masterObj; // an object that hosts block (sir trevor master or nested block wrapper)
+      this.sirTrevor = sirTrevor;
   
       this._ensureElement();
       this._bindFunctions();
@@ -1414,7 +1416,7 @@
   })();
   SirTrevor.Block = (function(){
   
-    var Block = function(data, instance_id) {
+    var Block = function(data, instance_id, masterObj, sirTrevor) {
       SirTrevor.SimpleBlock.apply(this, arguments);
     };
   
@@ -1627,7 +1629,7 @@
   
         var onDeleteConfirm = function(e) {
           e.preventDefault();
-          this.trigger('removeBlock', this.blockID);
+          this.trigger('removeBlock', this);
         };
   
         var onDeleteDeny = function(e) {
@@ -1873,6 +1875,70 @@
   
     });
   
+  })();
+  SirTrevor.Blocks.Columns2 = (function() {
+    var template = '<div class="columns-row" style="overflow: auto"></div>';
+  
+    var Column = function(width, $el) {
+      this.$el = $el;
+      this.width = width;
+      this.blocks = [];
+    };
+  
+    return SirTrevor.Block.extend({
+      type: "Columns2",
+  
+      title: 'Columns2',
+  
+      editorHTML: template,
+  
+      icon_name: 'columns-2',
+  
+      _columns: [],
+  
+      columns_config: [1,1],
+  
+      onBlockRender: function(data) {
+        var self = this;
+  
+        var total_width = _.reduce(this.columns_config, function(total, width){ return total+width; }, 0);
+        var $row = this.$('.columns-row');
+  
+        _.each(this.columns_config, function(width, i) {
+          var percentage = Math.round(width*100.0*100/total_width)/100; // 2 digits precision
+          var $column = $('<div class="column" style="float: left; width: {percentage}%;"></div>'.replace('{percentage}', percentage));
+          $row.append($column);
+  
+          var column = new Column(width, $column);
+          self._columns.push(column);
+  
+          var plus = new SirTrevor.FloatingBlockControls($column, self.id, column);
+          self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
+          $column.prepend(plus.render().$el);
+        });
+      },
+  
+      toData: function() {
+        var dataObj = [];
+        _.each(this._columns, function(column) {
+          var blocksData = [];
+          _.each(column.blocks, function(block) {
+            blocksData.push(block.saveAndReturnData());
+          });
+  
+          dataObj.push({
+            width: column.width,
+            data: blocksData
+          });
+        });
+  
+        this.setData(dataObj);
+      },
+  
+      loadData: function(data) {
+        console.log(data);
+      }
+    });
   })();
   /*
     Heading Block
@@ -2354,7 +2420,7 @@
       handleControlButtonClick: function(e) {
         e.stopPropagation();
   
-        this.trigger('createBlock', $(e.currentTarget).attr('data-type'));
+        this.trigger('createBlock', $(e.currentTarget).attr('data-type'), null, this.current_master, this.current_container);
       }
   
     });
@@ -2372,9 +2438,10 @@
   
   SirTrevor.FloatingBlockControls = (function(){
   
-    var FloatingBlockControls = function(wrapper, instance_id) {
+    var FloatingBlockControls = function(wrapper, instance_id, masterObject) {
       this.$wrapper = wrapper;
       this.instance_id = instance_id;
+      this.master = masterObject; // masterObject to host create blocks
   
       this._ensureElement();
       this._bindFunctions();
@@ -2442,7 +2509,7 @@
         e.stopPropagation();
   
         var block = $(e.currentTarget);
-        this.trigger('showBlockControls', block);
+        this.trigger('showBlockControls', block, this.master);
       }
   
     });
@@ -2607,9 +2674,11 @@
         this._bindFunctions();
   
         this.store("create");
-        this.build();
-  
+        
         SirTrevor.instances.push(this);
+        
+        this.build();
+        
         SirTrevor.bindFormSubmit(this.$form);
       },
   
@@ -2622,7 +2691,7 @@
         this.$el.hide();
   
         this.block_controls = new SirTrevor.BlockControls(this.blockTypes, this.ID);
-        this.fl_block_controls = new SirTrevor.FloatingBlockControls(this.$wrapper, this.ID);
+        this.fl_block_controls = new SirTrevor.FloatingBlockControls(this.$wrapper, this.ID, this);
         this.formatBar = new SirTrevor.FormatBar(this.options.formatBar);
   
         this.listenTo(this.block_controls, 'createBlock', this.createBlock);
@@ -2645,10 +2714,10 @@
         if (store.data.length > 0) {
           _.each(store.data, function(block){
             SirTrevor.log('Creating: ' + block.type);
-            this.createBlock(block.type, block.data);
+            this.createBlock(block.type, block.data, this, this);
           }, this);
         } else if (this.options.defaultType !== false) {
-          this.createBlock(this.options.defaultType, {});
+          this.createBlock(this.options.defaultType, {}, this, this);
         }
   
         this.$wrapper.addClass('st-ready');
@@ -2706,7 +2775,7 @@
         }
       },
   
-      showBlockControls: function(container) {
+      showBlockControls: function(container, master) {
         if (!_.isUndefined(this.block_controls.current_container)) {
           this.block_controls.current_container.removeClass("with-st-controls");
         }
@@ -2716,11 +2785,22 @@
         container.append(this.block_controls.$el.detach());
         container.addClass('with-st-controls');
   
+        // set the master object block controls triggered for
+        this.block_controls.current_master = master;
         this.block_controls.current_container = container;
       },
   
       store: function(method, options){
         return SirTrevor.editorStore(this, method, options || {});
+      },
+  
+      getStructure: function() {
+        this.removeErrors();
+        this.store("reset");
+        this.validateBlocks(true);
+        this.validateBlockTypesExist(true);
+        this.renderErrors();
+        return this.store("read");
       },
   
       /*
@@ -2729,7 +2809,7 @@
         A block will have a reference to an Editor instance & the parent BlockType.
         We also have to remember to store static counts for how many blocks we have, and keep a nice array of all the blocks available.
       */
-      createBlock: function(type, data, render_at) {
+      createBlock: function(type, data, masterObject, $container) {
         type = _.classify(type);
   
         if(this._blockLimitReached()) {
@@ -2748,13 +2828,18 @@
           return false;
         }
   
-        var block = new SirTrevor.Blocks[type](data, this.ID);
+        // additionally pass master editor object to block (needed for nested blocks)
+        var block = new SirTrevor.Blocks[type](data, this.ID, masterObject || this, this);
   
-        this._renderInPosition(block.render().$el);
+        // optional `$container` argument can define the DOM element to adopt new block
+        // this is used for initial blocks structure building to support nested blocks
+        this._renderInPosition(block.render().$el, $container);
   
         this.listenTo(block, 'removeBlock', this.removeBlock);
   
-        this.blocks.push(block);
+        // optional `masterObject` argument can define the object to adopt new block (needed for nesting blocks)
+        (masterObject || this).blocks.push(block);
+  
         this._incrementBlockTypeCount(type);
   
         block.focus();
@@ -2832,9 +2917,9 @@
         this.$wrapper.removeClass("st-outer--is-reordering");
       },
   
-      _renderInPosition: function(block) {
-        if (this.block_controls.current_container) {
-          this.block_controls.current_container.after(block);
+      _renderInPosition: function(block, $container) {
+        if (!_.isUndefined($container)) {
+          $container.after(block);
         } else {
           this.$wrapper.append(block);
         }
@@ -2858,9 +2943,8 @@
         return (this.options.blockLimit !== 0 && this.blocks.length >= this.options.blockLimit);
       },
   
-      removeBlock: function(block_id) {
-        var block = this.findBlockById(block_id),
-            type = _.classify(block.type),
+      removeBlock: function(block) {
+        var type = _.classify(block.type),
             controls = block.$el.find('.st-block-controls');
   
         if (controls.length) {
@@ -2869,7 +2953,7 @@
         }
   
         this.blockCounts[type] = this.blockCounts[type] - 1;
-        this.blocks = _.reject(this.blocks, function(item){ return (item.blockID == block.blockID); });
+        block.master.blocks = _.reject(block.master.blocks, function(item){ return (item.blockID == block.blockID); });
         this.stopListening(block);
   
         block.remove();

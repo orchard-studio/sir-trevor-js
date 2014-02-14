@@ -65,7 +65,7 @@ SirTrevor.Editor = (function(){
       this.$el.hide();
 
       this.block_controls = new SirTrevor.BlockControls(this.blockTypes, this.ID);
-      this.fl_block_controls = new SirTrevor.FloatingBlockControls(this.$wrapper, this.ID);
+      this.fl_block_controls = new SirTrevor.FloatingBlockControls(this.$wrapper, this.ID, this);
       this.formatBar = new SirTrevor.FormatBar(this.options.formatBar);
 
       this.listenTo(this.block_controls, 'createBlock', this.createBlock);
@@ -88,10 +88,10 @@ SirTrevor.Editor = (function(){
       if (store.data.length > 0) {
         _.each(store.data, function(block){
           SirTrevor.log('Creating: ' + block.type);
-          this.createBlock(block.type, block.data);
+          this.createBlock(block.type, block.data, this, this);
         }, this);
       } else if (this.options.defaultType !== false) {
-        this.createBlock(this.options.defaultType, {});
+        this.createBlock(this.options.defaultType, {}, this, this);
       }
 
       this.$wrapper.addClass('st-ready');
@@ -149,7 +149,7 @@ SirTrevor.Editor = (function(){
       }
     },
 
-    showBlockControls: function(container) {
+    showBlockControls: function(container, master) {
       if (!_.isUndefined(this.block_controls.current_container)) {
         this.block_controls.current_container.removeClass("with-st-controls");
       }
@@ -159,11 +159,22 @@ SirTrevor.Editor = (function(){
       container.append(this.block_controls.$el.detach());
       container.addClass('with-st-controls');
 
+      // set the master object block controls triggered for
+      this.block_controls.current_master = master;
       this.block_controls.current_container = container;
     },
 
     store: function(method, options){
       return SirTrevor.editorStore(this, method, options || {});
+    },
+
+    getStructure: function() {
+      this.removeErrors();
+      this.store("reset");
+      this.validateBlocks(true);
+      this.validateBlockTypesExist(true);
+      this.renderErrors();
+      return this.store("read");
     },
 
     /*
@@ -172,7 +183,7 @@ SirTrevor.Editor = (function(){
       A block will have a reference to an Editor instance & the parent BlockType.
       We also have to remember to store static counts for how many blocks we have, and keep a nice array of all the blocks available.
     */
-    createBlock: function(type, data, render_at) {
+    createBlock: function(type, data, masterObject, $container) {
       type = _.classify(type);
 
       if(this._blockLimitReached()) {
@@ -191,13 +202,18 @@ SirTrevor.Editor = (function(){
         return false;
       }
 
-      var block = new SirTrevor.Blocks[type](data, this.ID);
+      // additionally pass master editor object to block (needed for nested blocks)
+      var block = new SirTrevor.Blocks[type](data, this.ID, masterObject || this, this);
 
-      this._renderInPosition(block.render().$el);
+      // optional `$container` argument can define the DOM element to adopt new block
+      // this is used for initial blocks structure building to support nested blocks
+      this._renderInPosition(block.render().$el, $container);
 
       this.listenTo(block, 'removeBlock', this.removeBlock);
 
-      this.blocks.push(block);
+      // optional `masterObject` argument can define the object to adopt new block (needed for nesting blocks)
+      (masterObject || this).blocks.push(block);
+
       this._incrementBlockTypeCount(type);
 
       block.focus();
@@ -275,9 +291,9 @@ SirTrevor.Editor = (function(){
       this.$wrapper.removeClass("st-outer--is-reordering");
     },
 
-    _renderInPosition: function(block) {
-      if (this.block_controls.current_container) {
-        this.block_controls.current_container.after(block);
+    _renderInPosition: function(block, $container) {
+      if (!_.isUndefined($container)) {
+        $container.after(block);
       } else {
         this.$wrapper.append(block);
       }
@@ -301,9 +317,8 @@ SirTrevor.Editor = (function(){
       return (this.options.blockLimit !== 0 && this.blocks.length >= this.options.blockLimit);
     },
 
-    removeBlock: function(block_id) {
-      var block = this.findBlockById(block_id),
-          type = _.classify(block.type),
+    removeBlock: function(block) {
+      var type = _.classify(block.type),
           controls = block.$el.find('.st-block-controls');
 
       if (controls.length) {
@@ -312,7 +327,7 @@ SirTrevor.Editor = (function(){
       }
 
       this.blockCounts[type] = this.blockCounts[type] - 1;
-      this.blocks = _.reject(this.blocks, function(item){ return (item.blockID == block.blockID); });
+      block.master.blocks = _.reject(block.master.blocks, function(item){ return (item.blockID == block.blockID); });
       this.stopListening(block);
 
       block.remove();

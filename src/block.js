@@ -1,6 +1,6 @@
 SirTrevor.Block = (function(){
 
-  var Block = function(data, instance_id) {
+  var Block = function(data, instance_id, masterObj, sirTrevor) {
     SirTrevor.SimpleBlock.apply(this, arguments);
   };
 
@@ -213,7 +213,7 @@ SirTrevor.Block = (function(){
 
       var onDeleteConfirm = function(e) {
         e.preventDefault();
-        this.trigger('removeBlock', this.blockID);
+        this.trigger('removeBlock', this);
       };
 
       var onDeleteDeny = function(e) {
