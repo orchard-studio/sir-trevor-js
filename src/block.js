@@ -323,7 +323,7 @@ SirTrevor.Block = (function(){
         if (selectionStr === '') {
           SirTrevor.EventBus.trigger('formatter:hide');
         } else {
-          SirTrevor.EventBus.trigger('formatter:positon');
+          SirTrevor.EventBus.trigger('formatter:position');
         }
       });
      },

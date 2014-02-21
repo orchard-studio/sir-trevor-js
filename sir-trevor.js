@@ -1739,7 +1739,7 @@
           if (selectionStr === '') {
             SirTrevor.EventBus.trigger('formatter:hide');
           } else {
-            SirTrevor.EventBus.trigger('formatter:positon');
+            SirTrevor.EventBus.trigger('formatter:position');
           }
         });
        },
@@ -2700,7 +2700,7 @@
         this._setEvents();
   
         SirTrevor.EventBus.on(this.ID + ":blocks:change_position", this.changeBlockPosition);
-        SirTrevor.EventBus.on("formatter:positon", this.formatBar.renderBySelection);
+        SirTrevor.EventBus.on("formatter:position", this.formatBar.renderBySelection);
         SirTrevor.EventBus.on("formatter:hide", this.formatBar.hide);
   
         this.$wrapper.prepend(this.fl_block_controls.render().$el);
