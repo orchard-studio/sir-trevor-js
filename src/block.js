@@ -276,11 +276,12 @@ SirTrevor.Block = (function(){
 
     _initUIComponents: function() {
 
-      var positioner = new SirTrevor.BlockPositioner(this.$el, this.instanceID);
-
-      this._withUIComponent(
-        positioner, '.st-block-ui-btn--reorder', positioner.toggle
-      );
+//      // Disable Block Positioner select box (it is incompatible with nested blocks functionality)
+//      var positioner = new SirTrevor.BlockPositioner(this.$el, this.instanceID);
+//
+//      this._withUIComponent(
+//        positioner, '.st-block-ui-btn--reorder', positioner.toggle
+//      );
 
       this._withUIComponent(
         new SirTrevor.BlockReorder(this.$el)
@@ -347,6 +348,11 @@ SirTrevor.Block = (function(){
 
     isEmpty: function() {
       return _.isEmpty(this.saveAndGetData());
+    },
+
+    findBlockById: function(block_id) {
+      if (this.blockID == block_id) return this;
+      return null;
     }
 
   });

@@ -471,7 +471,11 @@ SirTrevor.Editor = (function(){
     },
 
     findBlockById: function(block_id) {
-      return _.find(this.blocks, function(b){ return b.blockID == block_id; });
+      for (var i=0; i<this.blocks.length; i++) {
+        // each block handles itself and its scope
+        var found_block = this.blocks[i].findBlockById(block_id);
+        if (found_block) return found_block;
+      }
     },
 
     getBlocksByType: function(block_type) {

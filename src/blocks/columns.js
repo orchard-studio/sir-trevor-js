@@ -1,4 +1,4 @@
-SirTrevor.Blocks.Columns2 = (function() {
+SirTrevor.Blocks.Columns = (function() {
   var template = '<div class="columns-row" style="overflow: auto"></div>';
 
   var Column = function(width, $el) {
@@ -8,13 +8,13 @@ SirTrevor.Blocks.Columns2 = (function() {
   };
 
   return SirTrevor.Block.extend({
-    type: "Columns2",
+    type: "Columns",
 
-    title: 'Columns2',
+    title: 'Columns',
 
     editorHTML: template,
 
-    icon_name: 'columns-2',
+    icon_name: 'columns',
 
     _columns: [],
 
@@ -34,7 +34,7 @@ SirTrevor.Blocks.Columns2 = (function() {
         var column = new Column(width, $column);
         self._columns.push(column);
 
-        var plus = new SirTrevor.FloatingBlockControls($column, self.id, column);
+        var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID, column);
         self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
         $column.prepend(plus.render().$el);
       });
@@ -58,7 +58,21 @@ SirTrevor.Blocks.Columns2 = (function() {
     },
 
     loadData: function(data) {
-      console.log(data);
+      // TODO: Implement this
+    },
+
+    // override standard function
+    findBlockById: function(block_id) {
+      // handle self block
+      if (this.blockID == block_id) return this;
+      // handle nested blocks
+      for (var i=0; i<this._columns.length; i++) {
+        var c = this._columns[i];
+        for (var j=0; j<c.blocks.length; j++) {
+          var found_block = c.blocks[j].findBlockById(block_id);
+          if (found_block) return found_block;
+        }
+      }
     }
   });
 })();
