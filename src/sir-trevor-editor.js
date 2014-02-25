@@ -321,11 +321,21 @@ SirTrevor.Editor = (function(){
       var type = _.classify(block.type),
           controls = block.$el.find('.st-block-controls');
 
+      var nested_blocks = block.$el.find('.st-block');
+      if (nested_blocks.length > 0)
+      {
+        var list = nested_blocks.map(function() {
+          return { depth: $(this).parents().length, id: this.getAttribute('id') };
+        }).get();
+        list.sort(function(a, b) { return a.depth - b.depth; });
+        // remove nested blocks in depth first order
+        for (var i=0; i<list.length; i++) this.removeBlock(this.findBlockById(list[i].id));
+      }
+
       if (controls.length) {
         this.block_controls.hide();
         this.$wrapper.prepend(controls);
       }
-      // TODO: block counts are broken (after introducing nested blocks)
       this.blockCounts[type] = this.blockCounts[type] - 1;
       this.blocks = _.reject(this.blocks, function(item){ return (item.blockID == block.blockID); });
       this.stopListening(block);
