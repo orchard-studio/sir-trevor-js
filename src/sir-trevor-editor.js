@@ -88,10 +88,10 @@ SirTrevor.Editor = (function(){
       if (store.data.length > 0) {
         _.each(store.data, function(block){
           SirTrevor.log('Creating: ' + block.type);
-          this.createBlock(block.type, block.data, this, this);
+          this.createBlock(block.type, block.data);
         }, this);
       } else if (this.options.defaultType !== false) {
-        this.createBlock(this.options.defaultType, {}, this, this);
+        this.createBlock(this.options.defaultType, {});
       }
 
       this.$wrapper.addClass('st-ready');
@@ -109,7 +109,7 @@ SirTrevor.Editor = (function(){
 
       // Destroy all blocks
       _.each(this.blocks, function(block) {
-        this.removeBlock(block.blockID);
+        this.removeBlock(block);
       }, this);
 
       // Stop listening to events
@@ -149,7 +149,7 @@ SirTrevor.Editor = (function(){
       }
     },
 
-    showBlockControls: function(container, master) {
+    showBlockControls: function(container) {
       if (!_.isUndefined(this.block_controls.current_container)) {
         this.block_controls.current_container.removeClass("with-st-controls");
       }
@@ -159,8 +159,6 @@ SirTrevor.Editor = (function(){
       container.append(this.block_controls.$el.detach());
       container.addClass('with-st-controls');
 
-      // set the master object block controls triggered for
-      this.block_controls.current_master = master;
       this.block_controls.current_container = container;
     },
 
@@ -183,7 +181,7 @@ SirTrevor.Editor = (function(){
       A block will have a reference to an Editor instance & the parent BlockType.
       We also have to remember to store static counts for how many blocks we have, and keep a nice array of all the blocks available.
     */
-    createBlock: function(type, data, masterObject, $container) {
+    createBlock: function(type, data, $container) {
       type = _.classify(type);
 
       if(this._blockLimitReached()) {
@@ -203,7 +201,7 @@ SirTrevor.Editor = (function(){
       }
 
       // additionally pass master editor object to block (needed for nested blocks)
-      var block = new SirTrevor.Blocks[type](data, this.ID, masterObject || this, this);
+      var block = new SirTrevor.Blocks[type](data, this.ID, this);
 
       // optional `$container` argument can define the DOM element to adopt new block
       // this is used for initial blocks structure building to support nested blocks
@@ -212,7 +210,7 @@ SirTrevor.Editor = (function(){
       this.listenTo(block, 'removeBlock', this.removeBlock);
 
       // optional `masterObject` argument can define the object to adopt new block (needed for nesting blocks)
-      (masterObject || this).blocks.push(block);
+      this.blocks.push(block);
 
       this._incrementBlockTypeCount(type);
 
@@ -224,6 +222,8 @@ SirTrevor.Editor = (function(){
 
       this.$wrapper.toggleClass('st--block-limit-reached', this._blockLimitReached());
       this.triggerBlockCountUpdate();
+
+      return block;
     },
 
     onNewBlockCreated: function(block) {
@@ -325,9 +325,9 @@ SirTrevor.Editor = (function(){
         this.block_controls.hide();
         this.$wrapper.prepend(controls);
       }
-
+      // TODO: block counts are broken (after introducing nested blocks)
       this.blockCounts[type] = this.blockCounts[type] - 1;
-      block.master.blocks = _.reject(block.master.blocks, function(item){ return (item.blockID == block.blockID); });
+      this.blocks = _.reject(this.blocks, function(item){ return (item.blockID == block.blockID); });
       this.stopListening(block);
 
       block.remove();
@@ -386,19 +386,17 @@ SirTrevor.Editor = (function(){
       if (!this.required && (SirTrevor.SKIP_VALIDATION && !should_validate)) {
         return false;
       }
-
+      var self = this;
       var blockIterator = function(block,index) {
-        var _block = _.find(this.blocks, function(b) {
-          return (b.blockID == $(block).attr('id')); });
+        var _block = self.findBlockById($(block).attr('id'));
 
         if (_.isUndefined(_block)) { return false; }
 
-        // Find our block
         this.performValidations(_block, should_validate);
         this.saveBlockStateToStore(_block);
       };
 
-      _.each(this.$wrapper.find('.st-block'), blockIterator, this);
+      _.each(this.$wrapper.children('.st-block'), blockIterator, this);
     },
 
     validateBlockTypesExist: function(should_validate) {
@@ -471,11 +469,7 @@ SirTrevor.Editor = (function(){
     },
 
     findBlockById: function(block_id) {
-      for (var i=0; i<this.blocks.length; i++) {
-        // each block handles itself and its scope
-        var found_block = this.blocks[i].findBlockById(block_id);
-        if (found_block) return found_block;
-      }
+      return _.find(this.blocks, function(b){ return b.blockID == block_id; });
     },
 
     getBlocksByType: function(block_type) {

@@ -2,55 +2,64 @@ SirTrevor.Blocks.Columns = (function() {
   var template = '<div class="columns-row" style="overflow: auto"></div>';
 
   var Column = function(width, $el) {
-    this.$el = $el;
     this.width = width;
-    this.blocks = [];
+    this.$el = $el;
+    this.$plus = null;
   };
 
   return SirTrevor.Block.extend({
     type: "Columns",
-
     title: 'Columns',
-
-    editorHTML: template,
-
     icon_name: 'columns',
-
-    _columns: [],
-
     columns_config: [1,1],
 
-    onBlockRender: function(data) {
-      var self = this;
+    editorHTML: function() {
+      return _.template('<div class="columns-row" id="<%= blockID %>-columns-row" style="overflow: auto"/>', {blockID: this.blockID})
+    },
 
+    _setBlockInner: function() {
+      SirTrevor.Block.prototype._setBlockInner.apply(this, arguments);
+
+      var self = this;
       var total_width = _.reduce(this.columns_config, function(total, width){ return total+width; }, 0);
       var $row = this.$('.columns-row');
 
-      _.each(this.columns_config, function(width, i) {
-        var percentage = Math.round(width*100.0*100/total_width)/100; // 2 digits precision
-        var $column = $('<div class="column" style="float: left; width: {percentage}%;"></div>'.replace('{percentage}', percentage));
+      this._columns = [];
+
+      _.each(this.columns_config, function(ratio, i) {
+        var width = Math.round(ratio*99.0*100/total_width)/100;
+        var $column = $('<div class="column" style="float: left; "></div>');
+        $column.css('width', width+'%');
+        $column.attr('data-index', i+1);
+        $column.attr('id', self.blockID+'-column-'+(i+1));
+
+        var _column = new Column(ratio, $column);
+
+        var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID, _column);
+        self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
+        var $plus = plus.render().$el;
+        _column.$plus = $plus;
+        $column.prepend($plus);
+
         $row.append($column);
 
-        var column = new Column(width, $column);
-        self._columns.push(column);
-
-        var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID, column);
-        self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
-        $column.prepend(plus.render().$el);
+        self._columns.push(_column);
       });
     },
 
     toData: function() {
-      var dataObj = [];
+      var self = this;
+      var dataObj = { columns: [] };
       _.each(this._columns, function(column) {
         var blocksData = [];
-        _.each(column.blocks, function(block) {
+        column.$el.children('.st-block').each(function(){
+          var block = self.sirTrevor.findBlockById(this.getAttribute('id'));
           blocksData.push(block.saveAndReturnData());
         });
 
-        dataObj.push({
+        dataObj.columns.push({
           width: column.width,
-          data: blocksData
+          blocks: blocksData
         });
       });
 
@@ -58,19 +67,14 @@ SirTrevor.Blocks.Columns = (function() {
     },
 
     loadData: function(data) {
-      // TODO: Implement this
-    },
-
-    // override standard function
-    findBlockById: function(block_id) {
-      // handle self block
-      if (this.blockID == block_id) return this;
-      // handle nested blocks
-      for (var i=0; i<this._columns.length; i++) {
-        var c = this._columns[i];
-        for (var j=0; j<c.blocks.length; j++) {
-          var found_block = c.blocks[j].findBlockById(block_id);
-          if (found_block) return found_block;
+      var columns_data = (data.columns || []);
+      for (var i=0; i<columns_data.length; i++)
+      {
+        var $block = null;
+        var _column = this._columns[i];
+        for (var j=0; j<columns_data[i].blocks.length; j++) {
+          var block = columns_data[i].blocks[j];
+          $block = this.sirTrevor.createBlock(block.type, block.data, $block ? $block.$el : _column.$plus);
         }
       }
     }

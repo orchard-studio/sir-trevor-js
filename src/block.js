@@ -1,6 +1,6 @@
 SirTrevor.Block = (function(){
 
-  var Block = function(data, instance_id, masterObj, sirTrevor) {
+  var Block = function(data, instance_id, sirTrevor) {
     SirTrevor.SimpleBlock.apply(this, arguments);
   };
 
@@ -348,13 +348,7 @@ SirTrevor.Block = (function(){
 
     isEmpty: function() {
       return _.isEmpty(this.saveAndGetData());
-    },
-
-    findBlockById: function(block_id) {
-      if (this.blockID == block_id) return this;
-      return null;
     }
-
   });
 
   Block.extend = extend; // Allow our Block to be extended.

@@ -4,7 +4,7 @@
  * Released under the MIT license
  * www.opensource.org/licenses/MIT
  *
- * 2014-02-24
+ * 2014-02-25
  */
 
 (function ($, _){
@@ -1286,11 +1286,10 @@
   };
   SirTrevor.SimpleBlock = (function(){
   
-    var SimpleBlock = function(data, instance_id, masterObj, sirTrevor) {
+    var SimpleBlock = function(data, instance_id, sirTrevor) {
       this.createStore(data);
       this.blockID = _.uniqueId('st-block-');
       this.instanceID = instance_id;
-      this.master = masterObj; // an object that hosts block (sir trevor master or nested block wrapper)
       this.sirTrevor = sirTrevor;
   
       this._ensureElement();
@@ -1417,7 +1416,7 @@
   })();
   SirTrevor.Block = (function(){
   
-    var Block = function(data, instance_id, masterObj, sirTrevor) {
+    var Block = function(data, instance_id, sirTrevor) {
       SirTrevor.SimpleBlock.apply(this, arguments);
     };
   
@@ -1765,13 +1764,7 @@
   
       isEmpty: function() {
         return _.isEmpty(this.saveAndGetData());
-      },
-  
-      findBlockById: function(block_id) {
-        if (this.blockID == block_id) return this;
-        return null;
       }
-  
     });
   
     Block.extend = extend; // Allow our Block to be extended.
@@ -1887,55 +1880,64 @@
     var template = '<div class="columns-row" style="overflow: auto"></div>';
   
     var Column = function(width, $el) {
-      this.$el = $el;
       this.width = width;
-      this.blocks = [];
+      this.$el = $el;
+      this.$plus = null;
     };
   
     return SirTrevor.Block.extend({
       type: "Columns",
-  
       title: 'Columns',
-  
-      editorHTML: template,
-  
       icon_name: 'columns',
-  
-      _columns: [],
-  
       columns_config: [1,1],
   
-      onBlockRender: function(data) {
-        var self = this;
+      editorHTML: function() {
+        return _.template('<div class="columns-row" id="<%= blockID %>-columns-row" style="overflow: auto"/>', {blockID: this.blockID})
+      },
   
+      _setBlockInner: function() {
+        SirTrevor.Block.prototype._setBlockInner.apply(this, arguments);
+  
+        var self = this;
         var total_width = _.reduce(this.columns_config, function(total, width){ return total+width; }, 0);
         var $row = this.$('.columns-row');
   
-        _.each(this.columns_config, function(width, i) {
-          var percentage = Math.round(width*100.0*100/total_width)/100; // 2 digits precision
-          var $column = $('<div class="column" style="float: left; width: {percentage}%;"></div>'.replace('{percentage}', percentage));
+        this._columns = [];
+  
+        _.each(this.columns_config, function(ratio, i) {
+          var width = Math.round(ratio*99.0*100/total_width)/100;
+          var $column = $('<div class="column" style="float: left; "></div>');
+          $column.css('width', width+'%');
+          $column.attr('data-index', i+1);
+          $column.attr('id', self.blockID+'-column-'+(i+1));
+  
+          var _column = new Column(ratio, $column);
+  
+          var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID, _column);
+          self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
+          var $plus = plus.render().$el;
+          _column.$plus = $plus;
+          $column.prepend($plus);
+  
           $row.append($column);
   
-          var column = new Column(width, $column);
-          self._columns.push(column);
-  
-          var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID, column);
-          self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
-          $column.prepend(plus.render().$el);
+          self._columns.push(_column);
         });
       },
   
       toData: function() {
-        var dataObj = [];
+        var self = this;
+        var dataObj = { columns: [] };
         _.each(this._columns, function(column) {
           var blocksData = [];
-          _.each(column.blocks, function(block) {
+          column.$el.children('.st-block').each(function(){
+            var block = self.sirTrevor.findBlockById(this.getAttribute('id'));
             blocksData.push(block.saveAndReturnData());
           });
   
-          dataObj.push({
+          dataObj.columns.push({
             width: column.width,
-            data: blocksData
+            blocks: blocksData
           });
         });
   
@@ -1943,19 +1945,14 @@
       },
   
       loadData: function(data) {
-        // TODO: Implement this
-      },
-  
-      // override standard function
-      findBlockById: function(block_id) {
-        // handle self block
-        if (this.blockID == block_id) return this;
-        // handle nested blocks
-        for (var i=0; i<this._columns.length; i++) {
-          var c = this._columns[i];
-          for (var j=0; j<c.blocks.length; j++) {
-            var found_block = c.blocks[j].findBlockById(block_id);
-            if (found_block) return found_block;
+        var columns_data = (data.columns || []);
+        for (var i=0; i<columns_data.length; i++)
+        {
+          var $block = null;
+          var _column = this._columns[i];
+          for (var j=0; j<columns_data[i].blocks.length; j++) {
+            var block = columns_data[i].blocks[j];
+            $block = this.sirTrevor.createBlock(block.type, block.data, $block ? $block.$el : _column.$plus);
           }
         }
       }
@@ -2441,7 +2438,7 @@
       handleControlButtonClick: function(e) {
         e.stopPropagation();
   
-        this.trigger('createBlock', $(e.currentTarget).attr('data-type'), null, this.current_master, this.current_container);
+        this.trigger('createBlock', $(e.currentTarget).attr('data-type'), null, this.current_container);
       }
   
     });
@@ -2736,10 +2733,10 @@
         if (store.data.length > 0) {
           _.each(store.data, function(block){
             SirTrevor.log('Creating: ' + block.type);
-            this.createBlock(block.type, block.data, this, this);
+            this.createBlock(block.type, block.data);
           }, this);
         } else if (this.options.defaultType !== false) {
-          this.createBlock(this.options.defaultType, {}, this, this);
+          this.createBlock(this.options.defaultType, {});
         }
   
         this.$wrapper.addClass('st-ready');
@@ -2757,7 +2754,7 @@
   
         // Destroy all blocks
         _.each(this.blocks, function(block) {
-          this.removeBlock(block.blockID);
+          this.removeBlock(block);
         }, this);
   
         // Stop listening to events
@@ -2797,7 +2794,7 @@
         }
       },
   
-      showBlockControls: function(container, master) {
+      showBlockControls: function(container) {
         if (!_.isUndefined(this.block_controls.current_container)) {
           this.block_controls.current_container.removeClass("with-st-controls");
         }
@@ -2807,8 +2804,6 @@
         container.append(this.block_controls.$el.detach());
         container.addClass('with-st-controls');
   
-        // set the master object block controls triggered for
-        this.block_controls.current_master = master;
         this.block_controls.current_container = container;
       },
   
@@ -2831,7 +2826,7 @@
         A block will have a reference to an Editor instance & the parent BlockType.
         We also have to remember to store static counts for how many blocks we have, and keep a nice array of all the blocks available.
       */
-      createBlock: function(type, data, masterObject, $container) {
+      createBlock: function(type, data, $container) {
         type = _.classify(type);
   
         if(this._blockLimitReached()) {
@@ -2851,7 +2846,7 @@
         }
   
         // additionally pass master editor object to block (needed for nested blocks)
-        var block = new SirTrevor.Blocks[type](data, this.ID, masterObject || this, this);
+        var block = new SirTrevor.Blocks[type](data, this.ID, this);
   
         // optional `$container` argument can define the DOM element to adopt new block
         // this is used for initial blocks structure building to support nested blocks
@@ -2860,7 +2855,7 @@
         this.listenTo(block, 'removeBlock', this.removeBlock);
   
         // optional `masterObject` argument can define the object to adopt new block (needed for nesting blocks)
-        (masterObject || this).blocks.push(block);
+        this.blocks.push(block);
   
         this._incrementBlockTypeCount(type);
   
@@ -2872,6 +2867,8 @@
   
         this.$wrapper.toggleClass('st--block-limit-reached', this._blockLimitReached());
         this.triggerBlockCountUpdate();
+  
+        return block;
       },
   
       onNewBlockCreated: function(block) {
@@ -2973,9 +2970,9 @@
           this.block_controls.hide();
           this.$wrapper.prepend(controls);
         }
-  
+        // TODO: block counts are broken (after introducing nested blocks)
         this.blockCounts[type] = this.blockCounts[type] - 1;
-        block.master.blocks = _.reject(block.master.blocks, function(item){ return (item.blockID == block.blockID); });
+        this.blocks = _.reject(this.blocks, function(item){ return (item.blockID == block.blockID); });
         this.stopListening(block);
   
         block.remove();
@@ -3034,19 +3031,17 @@
         if (!this.required && (SirTrevor.SKIP_VALIDATION && !should_validate)) {
           return false;
         }
-  
+        var self = this;
         var blockIterator = function(block,index) {
-          var _block = _.find(this.blocks, function(b) {
-            return (b.blockID == $(block).attr('id')); });
+          var _block = self.findBlockById($(block).attr('id'));
   
           if (_.isUndefined(_block)) { return false; }
   
-          // Find our block
           this.performValidations(_block, should_validate);
           this.saveBlockStateToStore(_block);
         };
   
-        _.each(this.$wrapper.find('.st-block'), blockIterator, this);
+        _.each(this.$wrapper.children('.st-block'), blockIterator, this);
       },
   
       validateBlockTypesExist: function(should_validate) {
@@ -3119,11 +3114,7 @@
       },
   
       findBlockById: function(block_id) {
-        for (var i=0; i<this.blocks.length; i++) {
-          // each block handles itself and its scope
-          var found_block = this.blocks[i].findBlockById(block_id);
-          if (found_block) return found_block;
-        }
+        return _.find(this.blocks, function(b){ return b.blockID == block_id; });
       },
   
       getBlocksByType: function(block_type) {
