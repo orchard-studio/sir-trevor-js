@@ -1057,12 +1057,12 @@
   
       bound: ['onMouseDown', 'onClick', 'onDragStart', 'onDragEnd', 'onDrag', 'onDrop'],
   
-      className: 'st-block-ui-btn st-block-ui-btn--reorder st-icon',
+      className: 'st-block-ui-btn st-block-ui-btn--reorder st-icon st-icon-move',
       tagName: 'a',
   
       attributes: function() {
         return {
-          'html': 'reorder',
+          'html': '',
           'draggable': 'true',
           'data-icon': 'move'
         };
@@ -1140,10 +1140,10 @@
     _.extend(BlockDeletion.prototype, FunctionBind, Renderable, {
   
       tagName: 'a',
-      className: 'st-block-ui-btn st-block-ui-btn--delete st-icon',
+      className: 'st-block-ui-btn st-block-ui-btn--delete st-icon st-icon-delete',
   
       attributes: {
-        html: 'delete',
+        html: '',
         'data-icon': 'bin'
       }
   
@@ -1425,14 +1425,14 @@
         "<label class='st-block__delete-label'>",
         "<%= i18n.t('general:delete') %>",
         "</label>",
-        "<a class='st-block-ui-btn st-block-ui-btn--confirm-delete st-icon' data-icon='tick'></a>",
-        "<a class='st-block-ui-btn st-block-ui-btn--deny-delete st-icon' data-icon='close'></a>",
+        "<a class='st-block-ui-btn st-block-ui-btn--confirm-delete st-icon st-icon-tick' data-icon='tick'></a>",
+        "<a class='st-block-ui-btn st-block-ui-btn--deny-delete st-icon st-icon-close' data-icon='close'></a>",
       "</div>"
     ].join("\n");
   
     var drop_options = {
       html: ['<div class="st-block__dropzone">',
-             '<span class="st-icon"><%= _.result(block, "icon_name") %></span>',
+             '<span class="st-icon st-icon-<%= _.result(block, "icon_name") %>"><%= _.result(block, "icon_name") %></span>',
              '<p><%= i18n.t("general:drop", { block: "<span>" + _.result(block, "title") + "</span>" }) %>',
              '</p></div>'].join('\n'),
       re_render_on_reorder: false
@@ -2377,7 +2377,8 @@
       },
   
       render: function() {
-        this.$el.html('<span class="st-icon">'+ _.result(this.block_type, 'icon_name') +'</span>' + _.result(this.block_type, 'title'));
+        var icon = _.result(this.block_type, 'icon_name');
+        this.$el.html('<span class="st-icon st-icon-' + icon + '"></span>' + _.result(this.block_type, 'title'));
         return this;
       }
     });
@@ -2408,7 +2409,7 @@
   
       className: "st-block-controls",
   
-      html: "<a class='st-icon st-icon--close'>" + i18n.t("general:close") + "</a>",
+      html: "<a class='st-icon st-icon--close'></a>",
   
       initialize: function() {
         for(var block_type in this.available_types) {

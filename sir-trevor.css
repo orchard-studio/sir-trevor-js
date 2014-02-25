@@ -1,50 +1,6 @@
 .st-outer {
   font-size: 16px; }
 
-/* Use the following CSS code if you want to use data attributes for inserting your icons */
-[data-icon]:before,
-[data-icon-after]:after {
-  font-family: 'ST-Icons';
-  speak: none;
-  /* Enable Ligatures */
-  -webkit-font-feature-settings: "liga","dlig";
-  -moz-font-feature-settings: "liga=1, dlig=1";
-  -moz-font-feature-settings: "liga","dlig";
-  -ms-font-feature-settings: "liga","dlig";
-  -o-font-feature-settings: "liga","dlig";
-  font-feature-settings: "liga","dlig";
-  text-rendering: optimizeLegibility;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  content: attr(data-icon); }
-
-[data-icon-after]:after {
-  content: attr(data-icon-after); }
-
-.st-icon {
-  font-family: 'ST-Icons';
-  speak: none;
-  /* Enable Ligatures */
-  -webkit-font-feature-settings: "liga","dlig";
-  -moz-font-feature-settings: "liga=1, dlig=1";
-  -moz-font-feature-settings: "liga","dlig";
-  -ms-font-feature-settings: "liga","dlig";
-  -o-font-feature-settings: "liga","dlig";
-  font-feature-settings: "liga","dlig";
-  text-rendering: optimizeLegibility;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  cursor: pointer; }
-
-[data-icon=bin]:hover:before {
-  content: "binopen"; }
-
 .st-block__inner ::-moz-selection {
   background: #34e0c2;
   text-shadow: none; }
@@ -110,13 +66,16 @@
   display: none; }
 
 .st-block-controls__top:before {
-  width: 100%;
   display: block;
   text-align: center;
-  font-size: 1.875em;
-  padding: 0.3em 0;
-  line-height: 0.9;
-  border-radius: 0.2em; }
+  font-size: 15px;
+  border-radius: 0.2em;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  padding: 0;
+  vertical-align: middle;
+  line-height: 36px; }
 
 .st-block-controls__top:hover:before {
   color: #34e0c2;
@@ -142,7 +101,7 @@
 
 .st-block-control .st-icon {
   font-size: 2.25em;
-  margin: 0 0 .2em 0;
+  margin: 0 auto .2em;
   display: block; }
 
 .st-block-control:hover {
@@ -153,7 +112,7 @@
   position: relative; }
 
 .st-block__inner {
-  padding: 1.875em 1.875em 2.8em;
+  padding: 5px;
   border: 2px solid #fff;
   position: relative; }
 
@@ -177,10 +136,14 @@
 
 .st-icon--add:after {
   text-align: center;
-  font-size: 1.875em;
-  padding: 0.3em 0;
-  line-height: 0.9;
-  border-radius: 0.2em; }
+  font-size: 15px;
+  border-radius: 0.2em;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  padding: 0;
+  vertical-align: middle;
+  line-height: 36px; }
 
 .st-block--with-plus:after {
   background: #f3f3f3;
@@ -202,6 +165,9 @@
   border: 2px dashed #d4d4d4;
   background: transparent;
   color: #d4d4d4; }
+
+.st-outer--is-reordering .st-block.st-drag-over:after {
+  width: auto; }
 
 .st-text-block {
   min-height: 3em;
@@ -400,14 +366,14 @@ ul.st-text-block {
   width: 3em;
   height: 2.5em;
   line-height: 2.5em;
-  font-size: 1.4em;
+  font-size: 15px;
   color: #34e0c2;
   background: #fff;
   text-align: center;
   border: 2px solid #34e0c2;
   border-right: 0;
   border-bottom: 0;
-  margin-bottom: 0;
+  margin: 0;
   cursor: pointer; }
 
 .st-block-control-ui-btn {

@@ -13,12 +13,12 @@ SirTrevor.BlockReorder = (function(){
 
     bound: ['onMouseDown', 'onClick', 'onDragStart', 'onDragEnd', 'onDrag', 'onDrop'],
 
-    className: 'st-block-ui-btn st-block-ui-btn--reorder st-icon',
+    className: 'st-block-ui-btn st-block-ui-btn--reorder st-icon st-icon-move',
     tagName: 'a',
 
     attributes: function() {
       return {
-        'html': 'reorder',
+        'html': '',
         'draggable': 'true',
         'data-icon': 'move'
       };

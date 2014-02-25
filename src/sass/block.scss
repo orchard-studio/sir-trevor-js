@@ -4,7 +4,7 @@
 }
 
 .st-block__inner {
-  padding: 1.875em 1.875em 2.8em;
+  padding: 5px;
   border: 2px solid #fff;
   position: relative;
 }
@@ -32,10 +32,14 @@
 
 .st-icon--add:after {
   text-align: center;
-  font-size: 1.875em;
-  padding: 0.3em 0;
-  line-height: 0.9;
+  font-size: 15px;
   border-radius: 0.2em;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  padding: 0;
+  vertical-align: middle;
+  line-height: 36px;
 }
 
 .st-block--with-plus:after {
@@ -60,6 +64,10 @@
   border: 2px dashed #d4d4d4;
   background: transparent;
   color: #d4d4d4;
+}
+
+.st-outer--is-reordering .st-block.st-drag-over:after {
+  width: auto;
 }
 
 .st-text-block {
