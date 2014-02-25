@@ -5,14 +5,16 @@
     title: "bold",
     cmd: "bold",
     keyCode: 66,
-    text : "B"
+    iconName: "bold",
+    text : ""
   });
 
   var Italic = SirTrevor.Formatter.extend({
     title: "italic",
     cmd: "italic",
     keyCode: 73,
-    text : "i"
+    iconName: "italic",
+    text : ""
   });
 
   var Link = SirTrevor.Formatter.extend({
@@ -20,7 +22,7 @@
     title: "link",
     iconName: "link",
     cmd: "CreateLink",
-    text : "link",
+    text : "",
 
     onClick: function() {
 
@@ -53,9 +55,9 @@
 
   var UnLink = SirTrevor.Formatter.extend({
     title: "unlink",
-    iconName: "link",
+    iconName: "unlink",
     cmd: "unlink",
-    text : "link"
+    text : ""
   });
 
   /*

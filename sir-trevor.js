@@ -1432,7 +1432,7 @@
   
     var drop_options = {
       html: ['<div class="st-block__dropzone">',
-             '<span class="st-icon st-icon-<%= _.result(block, "icon_name") %>"><%= _.result(block, "icon_name") %></span>',
+             '<span class="st-icon st-icon-<%= _.result(block, "icon_name") %>"></span>',
              '<p><%= i18n.t("general:drop", { block: "<span>" + _.result(block, "title") + "</span>" }) %>',
              '</p></div>'].join('\n'),
       re_render_on_reorder: false
@@ -2291,14 +2291,16 @@
       title: "bold",
       cmd: "bold",
       keyCode: 66,
-      text : "B"
+      iconName: "bold",
+      text : ""
     });
   
     var Italic = SirTrevor.Formatter.extend({
       title: "italic",
       cmd: "italic",
       keyCode: 73,
-      text : "i"
+      iconName: "italic",
+      text : ""
     });
   
     var Link = SirTrevor.Formatter.extend({
@@ -2306,7 +2308,7 @@
       title: "link",
       iconName: "link",
       cmd: "CreateLink",
-      text : "link",
+      text : "",
   
       onClick: function() {
   
@@ -2339,9 +2341,9 @@
   
     var UnLink = SirTrevor.Formatter.extend({
       title: "unlink",
-      iconName: "link",
+      iconName: "unlink",
       cmd: "unlink",
-      text : "link"
+      text : ""
     });
   
     /*
@@ -2569,7 +2571,7 @@
           if (SirTrevor.Formatters.hasOwnProperty(formatName)) {
             format = SirTrevor.Formatters[formatName];
             btn = $("<button>", {
-                    'class': 'st-format-btn st-format-btn--' + formatName + ' ' + (format.iconName ? 'st-icon' : ''),
+                    'class': 'st-format-btn st-format-btn--' + formatName + ' ' + (format.iconName ? 'st-icon st-icon-' +format.iconName : ''),
                     'text': format.text,
                     'data-type': formatName,
                     'data-cmd': format.cmd
