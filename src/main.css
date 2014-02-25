@@ -81,6 +81,9 @@
   color: #34e0c2;
   background: #f3f3f3; }
 
+.st-block-controls a:hover {
+  text-decoration: none; }
+
 .st-block-controls {
   background-color: #f3f3f3;
   display: none;
@@ -156,6 +159,7 @@
 .st-outer--is-reordering .st-block.st-drag-over:after,
 .st-outer--is-reordering .st-block.st-drag-over:last-child:after,
 .st-outer--is-reordering .st-block-controls__top.st-drag-over:before {
+  width: auto;
   font-family: inherit;
   content: "Drop block here";
   text-align: center;
@@ -165,9 +169,6 @@
   border: 2px dashed #d4d4d4;
   background: transparent;
   color: #d4d4d4; }
-
-.st-outer--is-reordering .st-block.st-drag-over:after {
-  width: auto; }
 
 .st-text-block {
   min-height: 3em;
