@@ -396,7 +396,8 @@ ul.st-text-block {
 .st-block-ui-btn:hover, .st-block-control-ui-btn:hover,
 .st-block-control-ui-btn:hover {
   color: #fff;
-  background: #34e0c2; }
+  background: #34e0c2;
+  text-decoration: none; }
 
 .st-block--with-errors .st-block-ui-btn:hover, .st-block--with-errors .st-block-control-ui-btn:hover,
 .st-block--delete-active .st-block-ui-btn:hover,
@@ -410,6 +411,7 @@ ul.st-text-block {
 .st-block__delete-label {
   display: block;
   border: 2px solid #d70014;
+  margin: 0;
   border-bottom: none;
   border-right: none;
   text-align: center;

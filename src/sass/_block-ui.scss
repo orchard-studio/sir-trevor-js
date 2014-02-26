@@ -53,6 +53,7 @@
 .st-block-control-ui-btn:hover {
   color: #fff;
   background: $accent-color;
+  text-decoration: none;
 }
 
 .st-block--with-errors .st-block-ui-btn:hover,
@@ -68,6 +69,7 @@
 .st-block__delete-label {
   display: block;
   border: 2px solid $error-color;
+  margin: 0;
   border-bottom: none;
   border-right: none;
   text-align: center;
