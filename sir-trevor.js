@@ -4,7 +4,7 @@
  * Released under the MIT license
  * www.opensource.org/licenses/MIT
  *
- * 2014-02-25
+ * 2014-02-28
  */
 
 (function ($, _){
@@ -1877,66 +1877,129 @@
   
   })();
   SirTrevor.Blocks.Columns = (function() {
-    var template = '<div class="columns-row" style="overflow: auto"></div>';
-  
-    var Column = function(width, $el) {
-      this.width = width;
-      this.$el = $el;
-      this.$plus = null;
-    };
-  
     return SirTrevor.Block.extend({
       type: "Columns",
       title: 'Columns',
       icon_name: 'columns',
-      columns_config: [1,1],
+  
+      columns_presets: {
+        'columns-6-6': [6,6],
+        'columns-3-9': [3,9],
+        'columns-9-3': [9,3],
+        'columns-4-4-4': [4,4,4],
+        'columns-3-6-3': [3,6,3],
+        'columns-3-3-3-3': [3,3,3,3]
+      },
+  
+      controllable: true,
+  
+      constructor: function(data, instance_id, sirTrevor) {
+        SirTrevor.Block.apply(this, arguments);
+      },
+  
+      beforeBlockRender: function() {
+        this.controls = {};
+        for (var preset in this.columns_presets) {
+          if (this.columns_presets.hasOwnProperty(preset)) {
+            this.controls[preset] = this.changeColumnsHandler(preset);
+          }
+        }
+      },
+  
+      changeColumnsHandler: function(preset) {
+        var self = this;
+        return function() { self.changeColumns(preset, false) };
+      },
+  
+      changeColumns: function(preset) {
+        if (this.columns_preset != preset)
+        {
+          this.applyColumns(preset);
+        }
+      },
   
       editorHTML: function() {
-        return _.template('<div class="columns-row" id="<%= blockID %>-columns-row" style="overflow: auto"/>', {blockID: this.blockID})
+        return _.template(
+            '<div class="columns-row" id="<%= blockID %>-columns-row" style="overflow: auto"/>'
+            , {blockID: this.blockID})
       },
   
       _setBlockInner: function() {
         SirTrevor.Block.prototype._setBlockInner.apply(this, arguments);
+        this.applyColumns('columns-6-6', true); /* default */
+      },
+  
+      applyColumns: function(preset, initial)
+      {
+        var columns_config = this.columns_presets[preset];
+  
+        var $to_delete = this.getColumns(':gt('+(columns_config.length-1)+')');
+        if ($to_delete.length > 0) {
+          var txt = $to_delete.length == 1 ? 'column' : ($to_delete.length + ' columns');
+          if (!confirm('This action will delete last ' + txt + '. Do you really want to proceed?')) {
+            return;
+          }
+          $to_delete.remove();
+        }
   
         var self = this;
-        var total_width = _.reduce(this.columns_config, function(total, width){ return total+width; }, 0);
+        var total_width = _.reduce(columns_config, function(total, width){ return total+width; }, 0);
         var $row = this.$('.columns-row');
   
-        this._columns = [];
-  
-        _.each(this.columns_config, function(ratio, i) {
+        _.each(columns_config, function(ratio, i) {
           var width = Math.round(ratio*99.0*100/total_width)/100;
-          var $column = $('<div class="column" style="float: left; "></div>');
+  
+          var $column = self.getColumn(i);
+          if ($column.length == 0) {
+            $column = $('<div class="column" style="float: left; "></div>');
+            var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID);
+            self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
+            $column.prepend(plus.render().$el);
+            $row.append($column);
+          }
+  
           $column.css('width', width+'%');
-          $column.attr('data-index', i+1);
-          $column.attr('id', self.blockID+'-column-'+(i+1));
-  
-          var _column = new Column(ratio, $column);
-  
-          var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID, _column);
-          self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
-          var $plus = plus.render().$el;
-          _column.$plus = $plus;
-          $column.prepend($plus);
-  
-          $row.append($column);
-  
-          self._columns.push(_column);
         });
+  
+        this.$('.st-block-control-ui-btn').removeClass('active')
+            .filter('[data-icon='+preset+']').addClass('active');
+  
+        this.columns_preset = preset;
+  
+        if (!initial) this.trigger('block:columns:change');
+      },
+  
+      onBlockRender: function() {
+        this.$('.st-block-control-ui-btn').filter('[data-icon='+this.columns_preset+']').addClass('active');
+      },
+  
+      getRow: function() {
+        if (this.$row) return this.$row;
+        return this.$row = this.$('#'+this.blockID+'-columns-row');
+      },
+  
+      getColumns: function(filter) {
+        return this.getRow().children(filter);
+      },
+  
+      getColumn: function(index) {
+        return this.getRow().children(':eq('+index+')');
       },
   
       toData: function() {
         var self = this;
+        var column_config = this.columns_presets[this.columns_preset];
         var dataObj = { columns: [] };
-        _.each(this._columns, function(column) {
+  
+        this.getColumns().each(function(i) {
           var blocksData = [];
-          column.$el.children('.st-block').each(function(){
+          $(this).children('.st-block').each(function(){
             var block = self.sirTrevor.findBlockById(this.getAttribute('id'));
             blocksData.push(block.saveAndReturnData());
           });
   
           dataObj.columns.push({
-            width: column.width,
+            width: column_config[i],
             blocks: blocksData
           });
         });
@@ -1944,7 +2007,8 @@
         this.setData(dataObj);
       },
   
-      loadData: function(data) {
+      loadData: function(data)
+      {
         var columns_data = (data.columns || []);
         for (var i=0; i<columns_data.length; i++)
         {
@@ -1955,6 +2019,10 @@
             $block = this.sirTrevor.createBlock(block.type, block.data, $block ? $block.$el : _column.$plus);
           }
         }
+      },
+  
+      _initUIComponents: function() {
+        SirTrevor.Block.prototype._initUIComponents.apply(this, arguments);
       }
     });
   })();
@@ -2459,10 +2527,9 @@
   
   SirTrevor.FloatingBlockControls = (function(){
   
-    var FloatingBlockControls = function(wrapper, instance_id, masterObject) {
+    var FloatingBlockControls = function(wrapper, instance_id) {
       this.$wrapper = wrapper;
       this.instance_id = instance_id;
-      this.master = masterObject; // masterObject to host create blocks
   
       this._ensureElement();
       this._bindFunctions();
@@ -2531,7 +2598,7 @@
         e.stopPropagation();
   
         var block = $(e.currentTarget);
-        this.trigger('showBlockControls', block, this.master);
+        this.trigger('showBlockControls', block);
       }
   
     });

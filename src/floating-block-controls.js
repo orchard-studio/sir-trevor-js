@@ -6,10 +6,9 @@
 
 SirTrevor.FloatingBlockControls = (function(){
 
-  var FloatingBlockControls = function(wrapper, instance_id, masterObject) {
+  var FloatingBlockControls = function(wrapper, instance_id) {
     this.$wrapper = wrapper;
     this.instance_id = instance_id;
-    this.master = masterObject; // masterObject to host create blocks
 
     this._ensureElement();
     this._bindFunctions();
@@ -78,7 +77,7 @@ SirTrevor.FloatingBlockControls = (function(){
       e.stopPropagation();
 
       var block = $(e.currentTarget);
-      this.trigger('showBlockControls', block, this.master);
+      this.trigger('showBlockControls', block);
     }
 
   });

@@ -89,7 +89,8 @@
   display: none;
   border-radius: 0.2em;
   color: #42474b;
-  width: 100%;
+  width: 95%;
+  margin: 0 2.5%;
   text-align: center;
   padding: 1.2em 0; }
 
@@ -115,7 +116,7 @@
   position: relative; }
 
 .st-block__inner {
-  padding: 5px;
+  padding: 5px 5px 35px;
   border: 2px solid #fff;
   position: relative; }
 
@@ -418,6 +419,53 @@ ul.st-text-block {
   background: #fff;
   color: #d70014;
   padding: 0.4em 0; }
+
+.st-block[data-type=Columns]:hover > .st-block__inner > .columns-row > .column {
+  position: relative; }
+  .st-block[data-type=Columns]:hover > .st-block__inner > .columns-row > .column::before {
+    position: absolute;
+    width: 95%;
+    left: 2.5%;
+    border: 1px solid #35debc;
+    border-bottom: none;
+    height: 3px;
+    content: ' '; }
+.st-block[data-type=Columns] .st-block-controls {
+  font-size: 12px; }
+  .st-block[data-type=Columns] .st-block-controls .st-block-control {
+    margin-right: 5px;
+    margin-bottom: 3px; }
+.st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn {
+  width: 41px;
+  height: 30px;
+  background-image: url("images/columns.png");
+  background-repeat: no-repeat; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn.active, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn:hover {
+    background-color: #35debc; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-6-6] {
+    background-position: 5px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-6-6]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-6-6].active {
+      background-position: 5px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-9] {
+    background-position: -35px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-9]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-9].active {
+      background-position: -35px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-9-3] {
+    background-position: -75px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-9-3]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-9-3].active {
+      background-position: -75px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-4-4-4] {
+    background-position: -115px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-4-4-4]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-4-4-4].active {
+      background-position: -115px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-6-3] {
+    background-position: -155px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-6-3]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-6-3].active {
+      background-position: -155px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-3-3-3] {
+    background-position: -195px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-3-3-3]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-3-3-3].active {
+      background-position: -195px 4px; }
 
 .st-format-bar {
   position: absolute;

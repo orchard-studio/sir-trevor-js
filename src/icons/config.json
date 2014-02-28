@@ -14,7 +14,7 @@
     },
     {
       "uid": "381da2c2f7fd51f8de877c044d7f439d",
-      "css": "picture",
+      "css": "image",
       "code": 59397,
       "src": "fontawesome"
     },
@@ -64,6 +64,12 @@
       "uid": "f48ae54adfb27d8ada53d0fd9e34ee10",
       "css": "delete",
       "code": 59401,
+      "src": "fontawesome"
+    },
+    {
+      "uid": "e99461abfef3923546da8d745372c995",
+      "css": "configure",
+      "code": 59410,
       "src": "fontawesome"
     },
     {
