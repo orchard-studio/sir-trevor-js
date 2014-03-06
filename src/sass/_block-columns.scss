@@ -12,12 +12,19 @@
     }
   }
 
-  .st-block-controls {
-    font-size: 12px;
+  .column {
+    .st-block-controls {
+      font-size: 12px;
 
-    .st-block-control {
-      margin-right: 5px;
-      margin-bottom: 3px;
+      .st-block-control {
+        margin-right: 5px;
+        margin-bottom: 3px;
+
+        &[data-type=Columns] {
+          // disable nesting columns block
+          display: none;
+        }
+      }
     }
   }
 

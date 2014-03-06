@@ -430,11 +430,13 @@ ul.st-text-block {
     border-bottom: none;
     height: 3px;
     content: ' '; }
-.st-block[data-type=Columns] .st-block-controls {
+.st-block[data-type=Columns] .column .st-block-controls {
   font-size: 12px; }
-  .st-block[data-type=Columns] .st-block-controls .st-block-control {
+  .st-block[data-type=Columns] .column .st-block-controls .st-block-control {
     margin-right: 5px;
     margin-bottom: 3px; }
+    .st-block[data-type=Columns] .column .st-block-controls .st-block-control[data-type=Columns] {
+      display: none; }
 .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn {
   width: 41px;
   height: 30px;

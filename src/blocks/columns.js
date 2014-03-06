@@ -111,7 +111,7 @@ SirTrevor.Blocks.Columns = (function() {
     toData: function() {
       var self = this;
       var column_config = this.columns_presets[this.columns_preset];
-      var dataObj = { columns: [] };
+      var dataObj = { columns: [], preset: this.columns_preset };
 
       this.getColumns().each(function(i) {
         var blocksData = [];
@@ -131,14 +131,18 @@ SirTrevor.Blocks.Columns = (function() {
 
     loadData: function(data)
     {
+      if (data.preset) {
+        this.applyColumns(data.preset, true);
+      }
+
       var columns_data = (data.columns || []);
       for (var i=0; i<columns_data.length; i++)
       {
         var $block = null;
-        var _column = this._columns[i];
+        var $column = this.getColumn(i);
         for (var j=0; j<columns_data[i].blocks.length; j++) {
           var block = columns_data[i].blocks[j];
-          $block = this.sirTrevor.createBlock(block.type, block.data, $block ? $block.$el : _column.$plus);
+          $block = this.sirTrevor.createBlock(block.type, block.data, $block ? $block.$el : $column.children('.st-block-controls__top'));
         }
       }
     },
