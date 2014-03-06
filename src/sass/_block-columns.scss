@@ -1,0 +1,61 @@
+.st-block[data-type=Columns] {
+  &:hover > .st-block__inner > .columns-row > .column {
+    position: relative;
+    &::before {
+      position: absolute;
+      width: 95%;
+      left: 2.5%;
+      border: 1px solid #35debc;
+      border-bottom: none;
+      height: 3px;
+      content: ' ';
+    }
+  }
+
+  .column {
+    .st-block-controls {
+      font-size: 12px;
+
+      .st-block-control {
+        margin-right: 5px;
+        margin-bottom: 3px;
+
+        &[data-type=Columns] {
+          // disable nesting columns block
+          display: none;
+        }
+      }
+    }
+  }
+
+  @mixin columns-button-icon($name, $offset-x: 0) {
+    $offset-y: 4px;
+    &[data-icon=#{$name}] {
+      background-position: (5px - $offset-x) ($offset-y - 40px);
+
+      &:hover, &.active {
+        background-position: (5px - $offset-x) $offset-y;
+      }
+    }
+  }
+
+  .st-block__control-ui {
+    .st-block-control-ui-btn {
+      width: 41px;
+      height: 30px;
+      background-image: url("images/columns.png");
+      background-repeat: no-repeat;
+
+      &.active, &:hover {
+        background-color: #35debc;
+      }
+
+      @include columns-button-icon('columns-6-6');
+      @include columns-button-icon('columns-3-9', 40px);
+      @include columns-button-icon('columns-9-3', 80px);
+      @include columns-button-icon('columns-4-4-4', 120px);
+      @include columns-button-icon('columns-3-6-3', 160px);
+      @include columns-button-icon('columns-3-3-3-3', 200px);
+    }
+  }
+}

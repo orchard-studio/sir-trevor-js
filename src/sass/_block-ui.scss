@@ -21,14 +21,14 @@
   float: left;
   width: 3em; height: 2.5em;
   line-height: 2.5em;
-  font-size: 1.4em;
+  font-size: 15px;
   color: $accent-color;
   background: #fff;
   text-align: center;
   border: 2px solid $accent-color;
   border-right: 0;
   border-bottom: 0;
-  margin-bottom: 0;
+  margin: 0;
   cursor: pointer;
 }
 
@@ -53,6 +53,7 @@
 .st-block-control-ui-btn:hover {
   color: #fff;
   background: $accent-color;
+  text-decoration: none;
 }
 
 .st-block--with-errors .st-block-ui-btn:hover,
@@ -68,6 +69,7 @@
 .st-block__delete-label {
   display: block;
   border: 2px solid $error-color;
+  margin: 0;
   border-bottom: none;
   border-right: none;
   text-align: center;

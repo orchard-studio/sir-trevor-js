@@ -5,13 +5,16 @@
 }
 
 .st-block-controls__top:before {
-  width: 100%;
   display: block;
   text-align: center;
-  font-size: 1.875em;
-  padding: 0.3em 0;
-  line-height: 0.9;
+  font-size: 15px;
   border-radius: 0.2em;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  padding: 0;
+  vertical-align: middle;
+  line-height: 36px;
 }
 
 .st-block-controls__top:hover:before {
@@ -19,12 +22,17 @@
   background: $blocks-control-bg-color;
 }
 
+.st-block-controls a:hover {
+  text-decoration: none;
+}
+
 .st-block-controls {
   background-color: $blocks-control-bg-color;
   display: none;
   border-radius: 0.2em;
   color: $base-ui-color;
-  width: 100%;
+  width: 95%;
+  margin: 0 2.5%;
   text-align: center;
   padding: 1.2em 0;
 }
@@ -42,7 +50,7 @@
 
 .st-block-control .st-icon {
   font-size: 2.25em;
-  margin: 0 0 .2em 0;
+  margin: 0 auto .2em;
   display: block;
 }
 

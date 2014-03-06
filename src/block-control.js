@@ -21,7 +21,8 @@ SirTrevor.BlockControl = (function(){
     },
 
     render: function() {
-      this.$el.html('<span class="st-icon">'+ _.result(this.block_type, 'icon_name') +'</span>' + _.result(this.block_type, 'title'));
+      var icon = _.result(this.block_type, 'icon_name');
+      this.$el.html('<span class="st-icon st-icon-' + icon + '"></span>' + _.result(this.block_type, 'title'));
       return this;
     }
   });

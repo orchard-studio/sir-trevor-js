@@ -4,6 +4,7 @@
 
 @import 'base';
 @import 'inputs';
+@import 'icons';
 
 @import 'errors';
 
@@ -14,6 +15,9 @@
 @import 'block';
 @import 'block-positioner';
 @import 'block-ui';
+
+// Block styles
+@import 'block-columns';
 
 // Format Bar
 @import 'format-bar';

@@ -4,7 +4,7 @@
  * Released under the MIT license
  * www.opensource.org/licenses/MIT
  *
- * 2014-02-25
+ * 2014-03-06
  */
 
 (function ($, _){
@@ -1057,12 +1057,12 @@
   
       bound: ['onMouseDown', 'onClick', 'onDragStart', 'onDragEnd', 'onDrag', 'onDrop'],
   
-      className: 'st-block-ui-btn st-block-ui-btn--reorder st-icon',
+      className: 'st-block-ui-btn st-block-ui-btn--reorder st-icon st-icon-move',
       tagName: 'a',
   
       attributes: function() {
         return {
-          'html': 'reorder',
+          'html': '',
           'draggable': 'true',
           'data-icon': 'move'
         };
@@ -1088,17 +1088,18 @@
         ev.stopPropagation(); // to prevent event handling on outer blocks
   
         var dropped_on = this.$block,
-            item_id = ev.originalEvent.dataTransfer.getData("text/plain"),
-            block = $('#' + item_id);
+            item_id = ev.originalEvent.dataTransfer.getData("text/plain");
   
-        if (!_.isUndefined(item_id) &&
-          !_.isEmpty(block) &&
-          dropped_on.attr('id') != item_id &&
-          dropped_on.attr('data-instance') == block.attr('data-instance')
-        ) {
-          dropped_on.after(block);
+        if (!_.isUndefined(item_id) && item_id.substr(0,9) == 'st-block-') {
+          var block = $('#' + item_id);
+          if (!_.isEmpty(block) &&
+              dropped_on.attr('id') != item_id &&
+              dropped_on.attr('data-instance') == block.attr('data-instance')
+              ) {
+            dropped_on.after(block);
+          }
+          SirTrevor.EventBus.trigger("block:reorder:dropped", item_id);
         }
-        SirTrevor.EventBus.trigger("block:reorder:dropped", item_id);
       },
   
       onDragStart: function(ev) {
@@ -1140,10 +1141,10 @@
     _.extend(BlockDeletion.prototype, FunctionBind, Renderable, {
   
       tagName: 'a',
-      className: 'st-block-ui-btn st-block-ui-btn--delete st-icon',
+      className: 'st-block-ui-btn st-block-ui-btn--delete st-icon st-icon-delete',
   
       attributes: {
-        html: 'delete',
+        html: '',
         'data-icon': 'bin'
       }
   
@@ -1425,14 +1426,14 @@
         "<label class='st-block__delete-label'>",
         "<%= i18n.t('general:delete') %>",
         "</label>",
-        "<a class='st-block-ui-btn st-block-ui-btn--confirm-delete st-icon' data-icon='tick'></a>",
-        "<a class='st-block-ui-btn st-block-ui-btn--deny-delete st-icon' data-icon='close'></a>",
+        "<a class='st-block-ui-btn st-block-ui-btn--confirm-delete st-icon st-icon-tick' data-icon='tick'></a>",
+        "<a class='st-block-ui-btn st-block-ui-btn--deny-delete st-icon st-icon-close' data-icon='close'></a>",
       "</div>"
     ].join("\n");
   
     var drop_options = {
       html: ['<div class="st-block__dropzone">',
-             '<span class="st-icon"><%= _.result(block, "icon_name") %></span>',
+             '<span class="st-icon st-icon-<%= _.result(block, "icon_name") %>"></span>',
              '<p><%= i18n.t("general:drop", { block: "<span>" + _.result(block, "title") + "</span>" }) %>',
              '</p></div>'].join('\n'),
       re_render_on_reorder: false
@@ -1877,66 +1878,129 @@
   
   })();
   SirTrevor.Blocks.Columns = (function() {
-    var template = '<div class="columns-row" style="overflow: auto"></div>';
-  
-    var Column = function(width, $el) {
-      this.width = width;
-      this.$el = $el;
-      this.$plus = null;
-    };
-  
     return SirTrevor.Block.extend({
       type: "Columns",
       title: 'Columns',
       icon_name: 'columns',
-      columns_config: [1,1],
+  
+      columns_presets: {
+        'columns-6-6': [6,6],
+        'columns-3-9': [3,9],
+        'columns-9-3': [9,3],
+        'columns-4-4-4': [4,4,4],
+        'columns-3-6-3': [3,6,3],
+        'columns-3-3-3-3': [3,3,3,3]
+      },
+  
+      controllable: true,
+  
+      constructor: function(data, instance_id, sirTrevor) {
+        SirTrevor.Block.apply(this, arguments);
+      },
+  
+      beforeBlockRender: function() {
+        this.controls = {};
+        for (var preset in this.columns_presets) {
+          if (this.columns_presets.hasOwnProperty(preset)) {
+            this.controls[preset] = this.changeColumnsHandler(preset);
+          }
+        }
+      },
+  
+      changeColumnsHandler: function(preset) {
+        var self = this;
+        return function() { self.changeColumns(preset, false) };
+      },
+  
+      changeColumns: function(preset) {
+        if (this.columns_preset != preset)
+        {
+          this.applyColumns(preset);
+        }
+      },
   
       editorHTML: function() {
-        return _.template('<div class="columns-row" id="<%= blockID %>-columns-row" style="overflow: auto"/>', {blockID: this.blockID})
+        return _.template(
+            '<div class="columns-row" id="<%= blockID %>-columns-row" style="overflow: auto"/>'
+            , {blockID: this.blockID})
       },
   
       _setBlockInner: function() {
         SirTrevor.Block.prototype._setBlockInner.apply(this, arguments);
+        this.applyColumns('columns-6-6', true); /* default */
+      },
+  
+      applyColumns: function(preset, initial)
+      {
+        var columns_config = this.columns_presets[preset];
+  
+        var $to_delete = this.getColumns(':gt('+(columns_config.length-1)+')');
+        if ($to_delete.length > 0) {
+          var txt = $to_delete.length == 1 ? 'column' : ($to_delete.length + ' columns');
+          if (!confirm('This action will delete last ' + txt + '. Do you really want to proceed?')) {
+            return;
+          }
+          $to_delete.remove();
+        }
   
         var self = this;
-        var total_width = _.reduce(this.columns_config, function(total, width){ return total+width; }, 0);
+        var total_width = _.reduce(columns_config, function(total, width){ return total+width; }, 0);
         var $row = this.$('.columns-row');
   
-        this._columns = [];
-  
-        _.each(this.columns_config, function(ratio, i) {
+        _.each(columns_config, function(ratio, i) {
           var width = Math.round(ratio*99.0*100/total_width)/100;
-          var $column = $('<div class="column" style="float: left; "></div>');
+  
+          var $column = self.getColumn(i);
+          if ($column.length == 0) {
+            $column = $('<div class="column" style="float: left; "></div>');
+            var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID);
+            self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
+            $column.prepend(plus.render().$el);
+            $row.append($column);
+          }
+  
           $column.css('width', width+'%');
-          $column.attr('data-index', i+1);
-          $column.attr('id', self.blockID+'-column-'+(i+1));
-  
-          var _column = new Column(ratio, $column);
-  
-          var plus = new SirTrevor.FloatingBlockControls($column, self.instanceID, _column);
-          self.listenTo(plus, 'showBlockControls', self.sirTrevor.showBlockControls);
-          var $plus = plus.render().$el;
-          _column.$plus = $plus;
-          $column.prepend($plus);
-  
-          $row.append($column);
-  
-          self._columns.push(_column);
         });
+  
+        this.$('.st-block-control-ui-btn').removeClass('active')
+            .filter('[data-icon='+preset+']').addClass('active');
+  
+        this.columns_preset = preset;
+  
+        if (!initial) this.trigger('block:columns:change');
+      },
+  
+      onBlockRender: function() {
+        this.$('.st-block-control-ui-btn').filter('[data-icon='+this.columns_preset+']').addClass('active');
+      },
+  
+      getRow: function() {
+        if (this.$row) return this.$row;
+        return this.$row = this.$('#'+this.blockID+'-columns-row');
+      },
+  
+      getColumns: function(filter) {
+        return this.getRow().children(filter);
+      },
+  
+      getColumn: function(index) {
+        return this.getRow().children(':eq('+index+')');
       },
   
       toData: function() {
         var self = this;
-        var dataObj = { columns: [] };
-        _.each(this._columns, function(column) {
+        var column_config = this.columns_presets[this.columns_preset];
+        var dataObj = { columns: [], preset: this.columns_preset };
+  
+        this.getColumns().each(function(i) {
           var blocksData = [];
-          column.$el.children('.st-block').each(function(){
+          $(this).children('.st-block').each(function(){
             var block = self.sirTrevor.findBlockById(this.getAttribute('id'));
             blocksData.push(block.saveAndReturnData());
           });
   
           dataObj.columns.push({
-            width: column.width,
+            width: column_config[i],
             blocks: blocksData
           });
         });
@@ -1944,17 +2008,26 @@
         this.setData(dataObj);
       },
   
-      loadData: function(data) {
+      loadData: function(data)
+      {
+        if (data.preset) {
+          this.applyColumns(data.preset, true);
+        }
+  
         var columns_data = (data.columns || []);
         for (var i=0; i<columns_data.length; i++)
         {
           var $block = null;
-          var _column = this._columns[i];
+          var $column = this.getColumn(i);
           for (var j=0; j<columns_data[i].blocks.length; j++) {
             var block = columns_data[i].blocks[j];
-            $block = this.sirTrevor.createBlock(block.type, block.data, $block ? $block.$el : _column.$plus);
+            $block = this.sirTrevor.createBlock(block.type, block.data, $block ? $block.$el : $column.children('.st-block-controls__top'));
           }
         }
+      },
+  
+      _initUIComponents: function() {
+        SirTrevor.Block.prototype._initUIComponents.apply(this, arguments);
       }
     });
   })();
@@ -2291,14 +2364,16 @@
       title: "bold",
       cmd: "bold",
       keyCode: 66,
-      text : "B"
+      iconName: "bold",
+      text : ""
     });
   
     var Italic = SirTrevor.Formatter.extend({
       title: "italic",
       cmd: "italic",
       keyCode: 73,
-      text : "i"
+      iconName: "italic",
+      text : ""
     });
   
     var Link = SirTrevor.Formatter.extend({
@@ -2306,7 +2381,7 @@
       title: "link",
       iconName: "link",
       cmd: "CreateLink",
-      text : "link",
+      text : "",
   
       onClick: function() {
   
@@ -2339,9 +2414,9 @@
   
     var UnLink = SirTrevor.Formatter.extend({
       title: "unlink",
-      iconName: "link",
+      iconName: "unlink",
       cmd: "unlink",
-      text : "link"
+      text : ""
     });
   
     /*
@@ -2377,7 +2452,8 @@
       },
   
       render: function() {
-        this.$el.html('<span class="st-icon">'+ _.result(this.block_type, 'icon_name') +'</span>' + _.result(this.block_type, 'title'));
+        var icon = _.result(this.block_type, 'icon_name');
+        this.$el.html('<span class="st-icon st-icon-' + icon + '"></span>' + _.result(this.block_type, 'title'));
         return this;
       }
     });
@@ -2408,7 +2484,7 @@
   
       className: "st-block-controls",
   
-      html: "<a class='st-icon st-icon--close'>" + i18n.t("general:close") + "</a>",
+      html: "<a class='st-icon st-icon--close'></a>",
   
       initialize: function() {
         for(var block_type in this.available_types) {
@@ -2456,10 +2532,9 @@
   
   SirTrevor.FloatingBlockControls = (function(){
   
-    var FloatingBlockControls = function(wrapper, instance_id, masterObject) {
+    var FloatingBlockControls = function(wrapper, instance_id) {
       this.$wrapper = wrapper;
       this.instance_id = instance_id;
-      this.master = masterObject; // masterObject to host create blocks
   
       this._ensureElement();
       this._bindFunctions();
@@ -2528,7 +2603,7 @@
         e.stopPropagation();
   
         var block = $(e.currentTarget);
-        this.trigger('showBlockControls', block, this.master);
+        this.trigger('showBlockControls', block);
       }
   
     });
@@ -2568,7 +2643,7 @@
           if (SirTrevor.Formatters.hasOwnProperty(formatName)) {
             format = SirTrevor.Formatters[formatName];
             btn = $("<button>", {
-                    'class': 'st-format-btn st-format-btn--' + formatName + ' ' + (format.iconName ? 'st-icon' : ''),
+                    'class': 'st-format-btn st-format-btn--' + formatName + ' ' + (format.iconName ? 'st-icon st-icon-' +format.iconName : ''),
                     'text': format.text,
                     'data-type': formatName,
                     'data-cmd': format.cmd

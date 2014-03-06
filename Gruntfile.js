@@ -16,10 +16,20 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-exec');
 
   grunt.initConfig({
 
     pkg: grunt.file.readJSON('package.json'),
+
+    exec: {
+      'fontello-open': {
+        cmd: './node_modules/fontello-cli/bin/fontello-cli open --config src/icons/config.json --css ./src/icons/css/ --font src/icons/font'
+      },
+      'fontello-install': {
+        cmd: './node_modules/fontello-cli/bin/fontello-cli install --config src/icons/config.json --css ./src/icons/css/ --font src/icons/font'
+      }
+    },
 
     'jasmine' : {
       'sir-trevor': {
@@ -105,5 +115,8 @@ module.exports = function(grunt) {
   grunt.registerTask('default', ['sass', 'rig', 'uglify', 'jasmine']);
 
   grunt.registerTask('jasmine-browser', ['server','watch']);
+
+  grunt.registerTask('fontello:open', ['exec:fontello-open']);
+  grunt.registerTask('fontello:install', ['exec:fontello-install']);
 
 };

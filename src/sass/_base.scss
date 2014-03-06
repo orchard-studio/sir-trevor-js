@@ -1,0 +1,22 @@
+.st-outer {
+  font-size: 16px;
+}
+
+.st-block__inner {
+
+  ::-moz-selection {
+      background: $accent-color;
+      text-shadow: none;
+  }
+
+  ::selection {
+      background: $accent-color;
+      text-shadow: none;
+  }
+
+}
+
+.st-spinner {
+  position: absolute!important;
+  left: 50%; top: 50%;
+}

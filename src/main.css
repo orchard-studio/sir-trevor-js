@@ -1,50 +1,6 @@
 .st-outer {
   font-size: 16px; }
 
-/* Use the following CSS code if you want to use data attributes for inserting your icons */
-[data-icon]:before,
-[data-icon-after]:after {
-  font-family: 'ST-Icons';
-  speak: none;
-  /* Enable Ligatures */
-  -webkit-font-feature-settings: "liga","dlig";
-  -moz-font-feature-settings: "liga=1, dlig=1";
-  -moz-font-feature-settings: "liga","dlig";
-  -ms-font-feature-settings: "liga","dlig";
-  -o-font-feature-settings: "liga","dlig";
-  font-feature-settings: "liga","dlig";
-  text-rendering: optimizeLegibility;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  content: attr(data-icon); }
-
-[data-icon-after]:after {
-  content: attr(data-icon-after); }
-
-.st-icon {
-  font-family: 'ST-Icons';
-  speak: none;
-  /* Enable Ligatures */
-  -webkit-font-feature-settings: "liga","dlig";
-  -moz-font-feature-settings: "liga=1, dlig=1";
-  -moz-font-feature-settings: "liga","dlig";
-  -ms-font-feature-settings: "liga","dlig";
-  -o-font-feature-settings: "liga","dlig";
-  font-feature-settings: "liga","dlig";
-  text-rendering: optimizeLegibility;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  cursor: pointer; }
-
-[data-icon=bin]:hover:before {
-  content: "binopen"; }
-
 .st-block__inner ::-moz-selection {
   background: #34e0c2;
   text-shadow: none; }
@@ -90,6 +46,57 @@
   border: 0.1em solid #d4d4d4;
   padding: .6em; }
 
+[data-icon=add]:before,
+[data-icon-after=add]:after {
+  font-family: "st-icons";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+  content: '\e80a'; }
+
+.st-icon {
+  font-family: "st-icons";
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+  display: inline-block;
+  text-decoration: inherit;
+  width: 1em;
+  margin-right: .2em;
+  text-align: center;
+  /* opacity: .8; */
+  /* For safety - reset parent styles, that can break glyph codes*/
+  font-variant: normal;
+  text-transform: none;
+  /* fix buttons height, for twitter bootstrap */
+  line-height: 1em;
+  /* Animation center compensation - margins should be symmetric */
+  /* remove if not needed */
+  margin-left: .2em;
+  /* you can be more comfortable with increased icons size */
+  /* font-size: 120%; */
+  /* Uncomment for 3D effect */
+  /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+  cursor: pointer; }
+
 .st-errors {
   background-color: #ffe1e4;
   padding: 2em;
@@ -110,24 +117,31 @@
   display: none; }
 
 .st-block-controls__top:before {
-  width: 100%;
   display: block;
   text-align: center;
-  font-size: 1.875em;
-  padding: 0.3em 0;
-  line-height: 0.9;
-  border-radius: 0.2em; }
+  font-size: 15px;
+  border-radius: 0.2em;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  padding: 0;
+  vertical-align: middle;
+  line-height: 36px; }
 
 .st-block-controls__top:hover:before {
   color: #34e0c2;
   background: #f3f3f3; }
+
+.st-block-controls a:hover {
+  text-decoration: none; }
 
 .st-block-controls {
   background-color: #f3f3f3;
   display: none;
   border-radius: 0.2em;
   color: #42474b;
-  width: 100%;
+  width: 95%;
+  margin: 0 2.5%;
   text-align: center;
   padding: 1.2em 0; }
 
@@ -142,7 +156,7 @@
 
 .st-block-control .st-icon {
   font-size: 2.25em;
-  margin: 0 0 .2em 0;
+  margin: 0 auto .2em;
   display: block; }
 
 .st-block-control:hover {
@@ -153,7 +167,7 @@
   position: relative; }
 
 .st-block__inner {
-  padding: 1.875em 1.875em 2.8em;
+  padding: 5px 5px 35px;
   border: 2px solid #fff;
   position: relative; }
 
@@ -177,10 +191,14 @@
 
 .st-icon--add:after {
   text-align: center;
-  font-size: 1.875em;
-  padding: 0.3em 0;
-  line-height: 0.9;
-  border-radius: 0.2em; }
+  font-size: 15px;
+  border-radius: 0.2em;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto;
+  padding: 0;
+  vertical-align: middle;
+  line-height: 36px; }
 
 .st-block--with-plus:after {
   background: #f3f3f3;
@@ -193,6 +211,7 @@
 .st-outer--is-reordering .st-block.st-drag-over:after,
 .st-outer--is-reordering .st-block.st-drag-over:last-child:after,
 .st-outer--is-reordering .st-block-controls__top.st-drag-over:before {
+  width: auto;
   font-family: inherit;
   content: "Drop block here";
   text-align: center;
@@ -205,7 +224,7 @@
 
 .st-text-block {
   min-height: 3em;
-  font-size: 1.275em;
+  font-size: 1em;
   line-height: 1.45; }
 
 .st-text-block--heading {
@@ -400,14 +419,14 @@ ul.st-text-block {
   width: 3em;
   height: 2.5em;
   line-height: 2.5em;
-  font-size: 1.4em;
+  font-size: 15px;
   color: #34e0c2;
   background: #fff;
   text-align: center;
   border: 2px solid #34e0c2;
   border-right: 0;
   border-bottom: 0;
-  margin-bottom: 0;
+  margin: 0;
   cursor: pointer; }
 
 .st-block-control-ui-btn {
@@ -429,7 +448,8 @@ ul.st-text-block {
 .st-block-ui-btn:hover, .st-block-control-ui-btn:hover,
 .st-block-control-ui-btn:hover {
   color: #fff;
-  background: #34e0c2; }
+  background: #34e0c2;
+  text-decoration: none; }
 
 .st-block--with-errors .st-block-ui-btn:hover, .st-block--with-errors .st-block-control-ui-btn:hover,
 .st-block--delete-active .st-block-ui-btn:hover,
@@ -443,12 +463,62 @@ ul.st-text-block {
 .st-block__delete-label {
   display: block;
   border: 2px solid #d70014;
+  margin: 0;
   border-bottom: none;
   border-right: none;
   text-align: center;
   background: #fff;
   color: #d70014;
   padding: 0.4em 0; }
+
+.st-block[data-type=Columns]:hover > .st-block__inner > .columns-row > .column {
+  position: relative; }
+  .st-block[data-type=Columns]:hover > .st-block__inner > .columns-row > .column::before {
+    position: absolute;
+    width: 95%;
+    left: 2.5%;
+    border: 1px solid #35debc;
+    border-bottom: none;
+    height: 3px;
+    content: ' '; }
+.st-block[data-type=Columns] .column .st-block-controls {
+  font-size: 12px; }
+  .st-block[data-type=Columns] .column .st-block-controls .st-block-control {
+    margin-right: 5px;
+    margin-bottom: 3px; }
+    .st-block[data-type=Columns] .column .st-block-controls .st-block-control[data-type=Columns] {
+      display: none; }
+.st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn {
+  width: 41px;
+  height: 30px;
+  background-image: url("images/columns.png");
+  background-repeat: no-repeat; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn.active, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn:hover {
+    background-color: #35debc; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-6-6] {
+    background-position: 5px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-6-6]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-6-6].active {
+      background-position: 5px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-9] {
+    background-position: -35px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-9]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-9].active {
+      background-position: -35px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-9-3] {
+    background-position: -75px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-9-3]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-9-3].active {
+      background-position: -75px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-4-4-4] {
+    background-position: -115px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-4-4-4]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-4-4-4].active {
+      background-position: -115px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-6-3] {
+    background-position: -155px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-6-3]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-6-3].active {
+      background-position: -155px 4px; }
+  .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-3-3-3] {
+    background-position: -195px -36px; }
+    .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-3-3-3]:hover, .st-block[data-type=Columns] .st-block__control-ui .st-block-control-ui-btn[data-icon=columns-3-3-3-3].active {
+      background-position: -195px 4px; }
 
 .st-format-bar {
   position: absolute;
@@ -484,8 +554,8 @@ ul.st-text-block {
   background: transparent;
   border: 0;
   color: #fff;
-  padding: 0 0.6em 0 0;
-  margin: 0 0.6em 0 0;
+  padding: 0 1.2em 0 0;
+  margin: 0 0.4em 0 0;
   font-size: 1em;
   vertical-align: middle;
   border-right: 1px solid #3e4245; }
@@ -498,9 +568,3 @@ ul.st-text-block {
 .st-format-btn:hover,
 .st-format-btn--is-active {
   color: #34e0c2; }
-
-.st-format-btn--Italic {
-  font-style: italic; }
-
-.st-format-btn--Unlink {
-  text-decoration: line-through; }
