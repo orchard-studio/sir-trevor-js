@@ -53,18 +53,32 @@ SirTrevor.Blocks.Columns = (function() {
 
     applyColumns: function(preset, initial)
     {
+      var self = this;
       var columns_config = this.columns_presets[preset];
 
       var $to_delete = this.getColumns(':gt('+(columns_config.length-1)+')');
+      // if there are unneeded columns
       if ($to_delete.length > 0) {
-        var txt = $to_delete.length == 1 ? 'column' : ($to_delete.length + ' columns');
-        if (!confirm('This action will delete last ' + txt + '. Do you really want to proceed?')) {
-          return;
+        // ask confirmation only if there are nested blocks
+        if ($to_delete.children('.st-block').length > 0)
+        {
+          var txt = $to_delete.length == 1 ? 'column' : ($to_delete.length + ' columns');
+          if (!confirm('This action will delete last ' + txt + '. Do you really want to proceed?')) {
+            return; // interrupt if "Cancel" is pressed
+          }
         }
-        $to_delete.remove();
+        $to_delete.each(function() {
+          var $this = $(this);
+          // destroy nested blocks properly
+          $this.children('.st-block').each(function() {
+            self.sirTrevor.removeBlock(self.sirTrevor.findBlockById(this.getAttribute('id')));
+          });
+          // destroy column itself
+          $this.trigger('destroy').remove();
+        });
       }
 
-      var self = this;
+      // apply new configuration
       var total_width = _.reduce(columns_config, function(total, width){ return total+width; }, 0);
       var $row = this.$('.columns-row');
 
