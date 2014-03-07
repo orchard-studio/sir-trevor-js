@@ -3073,9 +3073,10 @@
         this.blocks = _.reject(this.blocks, function(item){ return (item.blockID == block.blockID); });
         this.stopListening(block);
   
+        SirTrevor.EventBus.trigger("block:remove:pre", block);
         block.remove();
   
-        SirTrevor.EventBus.trigger("block:remove");
+        SirTrevor.EventBus.trigger("block:remove", block);
         this.triggerBlockCountUpdate();
   
         this.$wrapper.toggleClass('st--block-limit-reached', this._blockLimitReached());
