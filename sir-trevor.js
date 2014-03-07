@@ -4,7 +4,7 @@
  * Released under the MIT license
  * www.opensource.org/licenses/MIT
  *
- * 2014-03-06
+ * 2014-03-07
  */
 
 (function ($, _){
@@ -1094,7 +1094,8 @@
           var block = $('#' + item_id);
           if (!_.isEmpty(block) &&
               dropped_on.attr('id') != item_id &&
-              dropped_on.attr('data-instance') == block.attr('data-instance')
+              dropped_on.attr('data-instance') == block.attr('data-instance') &&
+              !block.has(dropped_on)
               ) {
             dropped_on.after(block);
           }
@@ -2975,6 +2976,7 @@
         SirTrevor.EventBus.trigger(this.ID + ":blocks:count_update", this.blocks.length);
       },
   
+      /** @deprecated - Positioner disabled after implementing nested blocks feature */
       changeBlockPosition: function($block, selectedPosition) {
         selectedPosition = selectedPosition - 1;
   

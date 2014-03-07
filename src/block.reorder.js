@@ -50,7 +50,8 @@ SirTrevor.BlockReorder = (function(){
         var block = $('#' + item_id);
         if (!_.isEmpty(block) &&
             dropped_on.attr('id') != item_id &&
-            dropped_on.attr('data-instance') == block.attr('data-instance')
+            dropped_on.attr('data-instance') == block.attr('data-instance') &&
+            !block.has(dropped_on)
             ) {
           dropped_on.after(block);
         }
