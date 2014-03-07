@@ -309,11 +309,22 @@ SirTrevor.Block = (function(){
     },
 
     _initTextBlocks: function() {
-      this.getTextBlock()
-        .bind('paste', this._handleContentPaste)
-        .bind('keyup', this.getSelectionForFormatter)
-        .bind('mouseup', this.getSelectionForFormatter)
-        .bind('DOMNodeInserted', this.clearInsertedStyles);
+      this.getTextBlock().each(function() {
+        var $this = $(this);
+        if (!$this.data('SirTrevor.Block._initTextBlocks'))
+        {
+          $this
+              .data('SirTrevor.Block._initTextBlocks', true)
+              .bind('paste', this._handleContentPaste)
+              .bind('keyup', this.getSelectionForFormatter)
+              .bind('mouseup', this.getSelectionForFormatter)
+              .bind('DOMNodeInserted', this.clearInsertedStyles)
+              .bind('destroy', function() {
+                $this.data('SirTrevor.Block._initTextBlocks', false)
+                $this.unbind('paste keyup mouseup DOMNodeInserted destroy')
+              });
+        }
+      });
     },
 
     getSelectionForFormatter: function() {
