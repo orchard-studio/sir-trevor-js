@@ -255,6 +255,7 @@ SirTrevor.Editor = (function(){
       SirTrevor.EventBus.trigger(this.ID + ":blocks:count_update", this.blocks.length);
     },
 
+    /** @deprecated - Positioner disabled after implementing nested blocks feature */
     changeBlockPosition: function($block, selectedPosition) {
       selectedPosition = selectedPosition - 1;
 
