@@ -39,7 +39,7 @@
     }
   }
 
-  .st-block__control-ui {
+  & > .st-block__inner > .st-block__control-ui {
     .st-block-control-ui-btn {
       width: 41px;
       height: 30px;
