@@ -100,7 +100,8 @@ module.exports = function(grunt) {
     sass: {
       dist: {
         files: {
-          'sir-trevor.css': 'src/sass/main.scss'
+          'sir-trevor.css': 'src/sass/main.scss',
+          'sir-trevor-icons.css': 'src/sass/icons.scss'
         }
       }
     }
