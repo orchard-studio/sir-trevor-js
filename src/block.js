@@ -58,7 +58,7 @@ SirTrevor.Block = (function(){
     icon_name: 'default',
 
     validationFailMsg: function() {
-      return i18n.t('errors:validation_fail', { type: this.title() });
+      return i18n.t('errors:validation_fail', { type: _.result(this,'title') });
     },
 
     editorHTML: '<div class="st-block__editor"></div>',

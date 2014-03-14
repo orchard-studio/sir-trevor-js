@@ -4,7 +4,7 @@
  * Released under the MIT license
  * www.opensource.org/licenses/MIT
  *
- * 2014-03-13
+ * 2014-03-14
  */
 
 (function ($, _){
@@ -1476,7 +1476,7 @@
       icon_name: 'default',
   
       validationFailMsg: function() {
-        return i18n.t('errors:validation_fail', { type: this.title() });
+        return i18n.t('errors:validation_fail', { type: _.result(this,'title') });
       },
   
       editorHTML: '<div class="st-block__editor"></div>',
