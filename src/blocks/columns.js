@@ -163,6 +163,10 @@ SirTrevor.Blocks.Columns = (function() {
 
     _initUIComponents: function() {
       SirTrevor.Block.prototype._initUIComponents.apply(this, arguments);
+    },
+
+    performValidations: function() {
+      // nothing
     }
   });
 })();

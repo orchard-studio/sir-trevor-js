@@ -399,16 +399,17 @@ SirTrevor.Editor = (function(){
         return false;
       }
       var self = this;
-      var blockIterator = function(block,index) {
-        var _block = self.findBlockById($(block).attr('id'));
-
+      // validate all blocks
+      _.each(this.blocks, function(_block) {
         if (_.isUndefined(_block)) { return false; }
-
-        this.performValidations(_block, should_validate);
-        this.saveBlockStateToStore(_block);
-      };
-
-      _.each(this.$wrapper.children('.st-block'), blockIterator, this);
+        self.performValidations(_block, should_validate);
+      });
+      // save only top-level blocks (nesting is handled by container blocks themeselves)
+      this.$wrapper.children('.st-block').each(function() {
+        var _block = self.findBlockById(this.id);
+        if (_.isUndefined(_block)) { return false; }
+        self.saveBlockStateToStore(_block);
+      });
     },
 
     validateBlockTypesExist: function(should_validate) {
