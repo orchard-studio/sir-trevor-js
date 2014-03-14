@@ -1095,7 +1095,7 @@
           if (!_.isEmpty(block) &&
               dropped_on.attr('id') != item_id &&
               dropped_on.attr('data-instance') == block.attr('data-instance') &&
-              !block.has(dropped_on)
+              !$.contains(block[0], dropped_on[0])
               ) {
             dropped_on.after(block);
           }
